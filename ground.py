@@ -1,8 +1,8 @@
 from model import *
 
 class Ground(Model):
-    def __init__(self, shadow_size=2048):
-        super().__init__(shadow_size)
+    def __init__(self, texure_path):
+        super().__init__()
         self.size = 50.0   # half-extent of the ground
         self.ground_positions = np.array([
             -self.size, 0.0, -self.size, 1.0,
@@ -29,10 +29,8 @@ class Ground(Model):
 
         self.ground_indices = np.array([0,1,2,  2,3,0], dtype=np.uint32)
 
-        # 1.2 Upload into a new MeshEntry
+        # Upload into a new MeshEntry
         self.ground = MeshEntry()
-        self.ground.texture_id = self.read_texture("textures/wood-floor-texture.png")
-        
+        self.ground.texture_id = self.read_texture(texure_path)
 
-    def init_ground(self):
         self.init_mesh(self.ground, self.ground_positions, self.ground_normals, self.ground_texcoords, self.ground_indices)

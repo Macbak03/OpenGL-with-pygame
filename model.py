@@ -17,7 +17,7 @@ class MeshEntry:
 
 # Main model class
 class Model:
-    def __init__(self, shadow_size=2048):
+    def __init__(self):
         self.loader = Loader()
         self.meshes = [] 
         self.box_min = np.array([0.0, 0.0, 0.0], dtype=np.float32)
@@ -25,9 +25,6 @@ class Model:
         self.loc_v = 0
         self.loc_n = 1
         self.loc_t = 2
-        self.shadow_size = shadow_size
-        self.depthFBO = glGenFramebuffers(1)
-        self.depthTex = glGenTextures(1)
 
     def read_texture(self, filename):
         # Load image via Pillow
@@ -44,50 +41,6 @@ class Model:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glBindTexture(GL_TEXTURE_2D, 0)
         return tex
-    
-    def init_shadow_map(self):
-        glBindTexture(GL_TEXTURE_2D, self.depthTex)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-                     self.shadow_size, self.shadow_size, 0,
-                     GL_DEPTH_COMPONENT, GL_FLOAT, None)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        # zapobiega artefaktom poza obszarem:
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
-        borderColor = (1.0, 1.0, 1.0, 1.0)
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL)
-
-        glBindFramebuffer(GL_FRAMEBUFFER, self.depthFBO)
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                               GL_TEXTURE_2D, self.depthTex, 0)
-        # nie rysujemy koloru w tym FBO
-        glDrawBuffer(GL_NONE)
-        glReadBuffer(GL_NONE)
-        assert glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
-
-    def render_shadow(self, shadow_shader: ShaderProgram, light_space_matrix, model_matrix):
-        # shadow_shader: ShaderProgram, ma tylko VS + pusty FS
-        glViewport(0, 0, self.shadow_size, self.shadow_size)
-        glBindFramebuffer(GL_FRAMEBUFFER, self.depthFBO)
-        glClear(GL_DEPTH_BUFFER_BIT)
-
-        shadow_shader.use()
-        #lUniformMatrix4fv(shadow_shader.u("lightSpaceMatrix"), 1, GL_FALSE, glm.value_ptr(light_space_matrix))
-        shadow_shader.set_mat4("lightSpaceMatrix", light_space_matrix)
-        shadow_shader.set_mat4("model", model_matrix)
-
-        # rysowanie modelu – tylko depth
-        for mesh in self.meshes:
-            glBindVertexArray(mesh.VAO)
-            glDrawElements(GL_TRIANGLES, mesh.index_count, GL_UNSIGNED_INT, None)
-        glBindVertexArray(0)
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
     def init_mesh(self, mesh_entry, vertices, normals, texcoords, indices):
         glBindVertexArray(mesh_entry.VAO)
@@ -128,7 +81,6 @@ class Model:
         for mesh in self.loader.meshes:
             m = MeshEntry()
             # Texture
-            #print(f"--------------{mesh.materials}-----------------")
             if mesh.materials and mesh.materials.map_Kd:
                 tex_path = os.path.join(os.path.dirname(path), mesh.materials.map_Kd)
                 m.texture_id = self.read_texture(tex_path)

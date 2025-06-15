@@ -1,6 +1,11 @@
 from pygame.locals import *
 import glm
 from constants import WindowSize, windowSize
+import pygame
+from model import Model
+from helper import clamp
+import math
+from shaderProgram import ShaderProgram
 
 class Camera:
     """
@@ -23,42 +28,76 @@ class Camera:
         self.lastY = window_size.y
         self.first_mouse_move = True
 
-        self.move_speed = 10.0    # units per second
+        self.move_speed = 10.0 
         self.mouse_sens = 5.0
 
-    def get_view_matrix(self):
-        return glm.lookAt(self.pos, self.pos + self.front, self.up)
+        self.boundary_margin = 20
     
-    def process_mouse(self, x, y):
+    def process_keyboard_input(self, dt):
+        keys = pygame.key.get_pressed()
+        camera_speed = self.move_speed * dt
+
+        flat_front = glm.normalize(glm.vec3(self.front.x, 0.0, self.front.z))
+        flat_right = glm.normalize(glm.cross(flat_front, self.up))
+        displacement = glm.vec3(0.0, 0.0, 0.0)
+
+        if keys[K_w]:
+            displacement += flat_front * camera_speed
+        if keys[K_s]:
+            displacement -= flat_front * camera_speed
+        if keys[K_a]:
+            displacement -= flat_right * camera_speed
+        if keys[K_d]:
+            displacement += flat_right * camera_speed
+        return displacement
+
+    def check_for_collision(self, model: Model, displacement):
+        new_pos = self.pos
+        # X-axis collision test
+        test_x = new_pos.x + displacement.x
+        if not model.does_collide(glm.vec3(test_x, new_pos.y, new_pos.z)):
+            new_pos.x = test_x
+        # Z-axis collision test
+        test_z = new_pos.z + displacement.z
+        if not model.does_collide(glm.vec3(new_pos.x, new_pos.y, test_z)):
+            new_pos.z = test_z
+        # Update the camera poosition - if there was a collision then position is unchanged
+        self.pos = new_pos
+
+    def check_if_out_of_bounds(self, max_size):
+        new_pos = self.pos
+        min_bound = -max_size + self.boundary_margin
+        max_bound = max_size - self.boundary_margin
+        new_pos.x = clamp(new_pos.x, min_bound, max_bound)
+        new_pos.z = clamp(new_pos.z, min_bound, max_bound)
+        self.pos = new_pos
+
+    def process_mouse_movement(self, dt):
+        xrel, yrel = pygame.mouse.get_rel()
+
         if self.first_mouse_move:
-            self.lastX, self.lastY = x, y
             self.first_mouse_move = False
+            return
 
-        xoffset = (x - self.lastX) * self.mouse_sens
-        yoffset = (self.lastY - y) * self.mouse_sens
-        self.lastX, self.lastY = x, y
+        # Scale by time-based sensitivity
+        sensitivity = self.mouse_sens * dt
+        xoffset = xrel * sensitivity
+        yoffset = -yrel * sensitivity  # invert y
 
-        self.yaw   += xoffset
-        self.pitch = glm.clamp(self.pitch + yoffset, -89.0, 89.0)
+        self.yaw += xoffset
+        self.pitch += yoffset
+        # 
+        self.pitch = clamp(self.pitch, -89.0, 89.0)
 
-        # recalc front & right
-        yaw_rad   = glm.radians(self.yaw)
-        pitch_rad = glm.radians(self.pitch)
         front = glm.vec3(
-            glm.cos(yaw_rad) * glm.cos(pitch_rad),
-            glm.sin(pitch_rad),
-            glm.sin(yaw_rad) * glm.cos(pitch_rad)
+            math.cos(glm.radians(self.yaw)) * math.cos(glm.radians(self.pitch)),
+            math.sin(glm.radians(self.pitch)),
+            math.sin(glm.radians(self.yaw)) * math.cos(glm.radians(self.pitch))
         )
         self.front = glm.normalize(front)
-        self.right = glm.normalize(glm.cross(self.front, self.up))
 
-    def process_keyboard(self, keys, dt):
-        velocity = self.move_speed * dt
-        if keys[K_w]:
-            self.pos += self.front * velocity
-        if keys[K_s]:
-            self.pos -= self.front * velocity
-        if keys[K_a]:
-            self.pos -= self.right * velocity
-        if keys[K_d]:
-            self.pos += self.right * velocity
+    def set_up_in_scene(self, shader: ShaderProgram, aspect_ratio):
+        view = glm.lookAt(self.pos, self.pos + self.front, self.up)
+        projection = glm.perspective(glm.radians(50.0), aspect_ratio, 1.0, 50.0)
+        shader.set_mat4("view", view)
+        shader.set_mat4("projection", projection)
