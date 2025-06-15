@@ -52,7 +52,6 @@ def init_pygame_opengl():
         sys.exit(1)
     piano.init_shadow_map()
     ground.init_ground()
-
     # Camera after knowing window size
     width, height = pygame.display.get_surface().get_size()
     aspect_ratio = width / height
@@ -154,7 +153,8 @@ def draw_scene():
     lightView = glm.lookAt(light_pos, glm.vec3(0.0), glm.vec3(0.0, 1.0, 0.0))
     lightSpaceMatrix = lightProj * lightView
     # render
-    piano.render_shadow(depth_shader, lightSpaceMatrix)
+    piano.render_shadow(depth_shader, lightSpaceMatrix, model_matrix=ground_M)
+    piano.render_shadow(depth_shader, lightSpaceMatrix, model_matrix=M)
 
     glViewport(0, 0, windowSize.x, windowSize.y)
     glBindFramebuffer(GL_FRAMEBUFFER, 0)

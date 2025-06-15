@@ -2,11 +2,8 @@ from model import *
 
 class Ground(Model):
     def __init__(self, shadow_size=2048):
+        super().__init__(shadow_size)
         self.size = 50.0   # half-extent of the ground
-        self.loc_v = 0
-        self.loc_n = 1
-        self.loc_t = 2
-        self.meshes = [] 
         self.ground_positions = np.array([
             -self.size, 0.0, -self.size, 1.0,
             self.size, 0.0, -self.size, 1.0,

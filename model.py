@@ -67,7 +67,7 @@ class Model:
         assert glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
-    def render_shadow(self, shadow_shader: ShaderProgram, light_space_matrix):
+    def render_shadow(self, shadow_shader: ShaderProgram, light_space_matrix, model_matrix):
         # shadow_shader: ShaderProgram, ma tylko VS + pusty FS
         glViewport(0, 0, self.shadow_size, self.shadow_size)
         glBindFramebuffer(GL_FRAMEBUFFER, self.depthFBO)
@@ -76,6 +76,7 @@ class Model:
         shadow_shader.use()
         #lUniformMatrix4fv(shadow_shader.u("lightSpaceMatrix"), 1, GL_FALSE, glm.value_ptr(light_space_matrix))
         shadow_shader.set_mat4("lightSpaceMatrix", light_space_matrix)
+        shadow_shader.set_mat4("model", model_matrix)
 
         # rysowanie modelu – tylko depth
         for mesh in self.meshes:
