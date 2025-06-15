@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 # Window dimensions
+@dataclass
 class WindowSize:
     x: int = 1920
     y: int = 1080
