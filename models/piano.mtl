@@ -1,0 +1,82 @@
+# Blender 4.4.3 MTL File: 'piano_seperate_keys_with_hammers.blend'
+# www.blender.org
+
+newmtl 1.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/white-metal.png
+
+newmtl 2.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/black.png
+
+newmtl 3.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/black-metal.png
+
+newmtl 4.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/metal.png
+
+newmtl 5.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/paper.png
+
+newmtl 6.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/book.png
+
+newmtl 8.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/wood.png
+
+newmtl Metal_gris_.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd E:/Studia/Grafika/kajtek_projekt/textures/metal.png
