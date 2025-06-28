@@ -82,7 +82,7 @@ class Model:
             m = MeshEntry()
             # Texture
             if mesh.materials and mesh.materials.map_Kd:
-                tex_path = os.path.join(os.path.dirname(path), mesh.materials.map_Kd)
+                tex_path = mesh.materials.map_Kd
                 m.texture_id = self.read_texture(tex_path)
             else:
                 m.texture_id = 0

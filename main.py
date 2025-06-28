@@ -65,8 +65,6 @@ def init_pygame_opengl():
     pygame.mouse.set_visible(False)
     camera.first_mouse_move = True
 
-    return screen
-
 
 def process_input(dt):
     camera_displacement = camera.process_keyboard_input(dt)
@@ -97,8 +95,8 @@ def draw_scene():
     light_space_matrix = light.calculate_light_space_matrix()
     
     # render
-    shadow_map.render(ground, depth_shader, light_space_matrix, model_matrix=ground_M)
-    shadow_map.render(piano, depth_shader, light_space_matrix, model_matrix=M)
+    shadow_map.render(ground, depth_shader, sp, light_space_matrix, model_matrix=ground_M)
+    shadow_map.render(piano, depth_shader, sp, light_space_matrix, model_matrix=M)
 
     glViewport(0, 0, windowSize.x, windowSize.y)
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
@@ -115,7 +113,7 @@ def draw_scene():
 
 
 def main():
-    screen = init_pygame_opengl()
+    init_pygame_opengl()
     clock = pygame.time.Clock()
 
     running = True
@@ -136,7 +134,6 @@ def main():
         draw_scene()
 
     pygame.quit()
-    sp.delete()
     sys.exit(0)
 
 

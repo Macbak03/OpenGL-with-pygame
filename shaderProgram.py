@@ -26,7 +26,7 @@ class ShaderProgram:
             log = glGetProgramInfoLog(self.program)
             print(f"Shader link error:\n{log.decode('utf-8')}", file=sys.stderr)
             sys.exit(1)
-        # Optionally detach shaders
+        # Detach shaders
         glDetachShader(self.program, self.vertex_shader)
         if self.geometry_shader:
             glDetachShader(self.program, self.geometry_shader)
@@ -69,12 +69,17 @@ class ShaderProgram:
             print(f"Warning: uniform '{name}' not found")
         glUniform1i(loc, value)
 
+    def set_float(self, name: str, value: float):
+        loc = self.u(name)
+        if loc == -1:
+            print(f"Warning: uniform '{name}' not found")
+        glUniform1f(loc, value)
+
     def set_mat4(self, name: str, mat):
         """Upload a 4×4 matrix (numpy array dtype=float32, shape=(4,4))."""
         loc = self.u(name)
         if loc == -1:
             print(f"Warning: uniform '{name}' not found")
-        # GL_FALSE means “don’t transpose” — your array should already be column-major
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm.value_ptr(mat))
 
     def set_vec3(self, name: str, vec):
@@ -82,16 +87,14 @@ class ShaderProgram:
         loc = self.u(name)
         if loc == -1:
             print(f"Warning: uniform '{name}' not found")
-        # If vec is a numpy array, you can also do glUniform3fv(loc, 1, vec)
         glUniform3f(loc, vec[0], vec[1], vec[2])
 
     def delete(self):
-        if glIsProgram(self.program):
+        # Delete shaders
+        for shader in (self.vertex_shader, self.geometry_shader, self.fragment_shader):
+            if shader:
+                glDeleteShader(shader)
+
+        # Delete the program
+        if self.program:
             glDeleteProgram(self.program)
-        # Shaders can be deleted if needed
-        if glIsShader(self.vertex_shader):
-            glDeleteShader(self.vertex_shader)
-        if self.geometry_shader and glIsShader(self.geometry_shader):
-            glDeleteShader(self.geometry_shader)
-        if glIsShader(self.fragment_shader):
-            glDeleteShader(self.fragment_shader)

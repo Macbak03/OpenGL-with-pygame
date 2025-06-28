@@ -14,8 +14,8 @@ class ShadowMap:
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
                      self.size, self.size, 0,
                      GL_DEPTH_COMPONENT, GL_FLOAT, None)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
         borderColor = (1.0, 1.0, 1.0, 1.0)
@@ -30,15 +30,15 @@ class ShadowMap:
         assert glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
-    def render(self, model: Model, shader: ShaderProgram,
+    def render(self, model: Model, depth_shader: ShaderProgram, shader: ShaderProgram,
                light_space_matrix, model_matrix):
         glViewport(0, 0, self.size, self.size)
         glBindFramebuffer(GL_FRAMEBUFFER, self.depthFBO)
         glClear(GL_DEPTH_BUFFER_BIT)
 
-        shader.use()
-        shader.set_mat4("lightSpaceMatrix", light_space_matrix)
-        shader.set_mat4("model", model_matrix)
+        depth_shader.use()
+        depth_shader.set_mat4("lightSpaceMatrix", light_space_matrix)
+        depth_shader.set_mat4("model", model_matrix)
         for mesh in model.meshes:
             glBindVertexArray(mesh.VAO)
             glDrawElements(GL_TRIANGLES, mesh.index_count, GL_UNSIGNED_INT, None)

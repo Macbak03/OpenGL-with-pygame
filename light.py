@@ -67,3 +67,6 @@ class Light:
         shader.set_vec3("lightPos", self.light_pos)
         shader.set_vec3("viewPos", camera_pos)
         shader.set_mat4("lightSpaceMatrix", light_space_matrix)
+        shader.set_float("lightRadius", 64.0)      # np. 1.0 jednostki
+        shader.set_int("blockerSamples", 32)    # 16 próbek na blocker search
+        shader.set_int("pcfSamples", 32)    # 32 próbek końcowego PCF
